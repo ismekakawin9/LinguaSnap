@@ -2,11 +2,14 @@ package com.example.linguasnap;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.os.StrictMode;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -29,6 +32,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
+    private ImageView iv_camera_option;
     private EditText EnterText;
     private TextView Translated;
     private String originalText;
@@ -46,6 +50,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        iv_camera_option=findViewById(R.id.iv_camera_option);
+        iv_camera_option.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent cameraIntent= new Intent(MainActivity.this,ImageToTextActivity.class);
+                startActivity(cameraIntent);
+            }
+        });
         String [] languages = getResources().getStringArray(R.array.LanguageFrom);
         TextView TextFrom = findViewById(R.id.TextFrom);
         TextView TextTo = findViewById(R.id.TextTo);
@@ -156,5 +169,6 @@ public class MainActivity extends AppCompatActivity {
 
         return connected;
     }
+
 
 }
