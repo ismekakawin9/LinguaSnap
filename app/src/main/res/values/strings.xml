@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">LinguaSnap</string>
+    <string-array name="language_code">
+        <item>Latin</item>
+        <item>Chinese</item>
+        <item>Japanese</item>
+        <item>Chinese</item>
+        <item>Devanagari</item>
+    </string-array>
+</resources>
