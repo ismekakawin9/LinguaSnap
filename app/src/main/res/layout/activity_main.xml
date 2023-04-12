@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/white">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline1"
@@ -62,7 +63,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:entries="@array/LanguageFrom"
-                android:textSize="30dp" />
+                android:textSize="30dp"/>
 
             <ImageButton
                 android:layout_width="40dp"

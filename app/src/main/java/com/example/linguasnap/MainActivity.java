@@ -45,12 +45,15 @@ public class MainActivity extends AppCompatActivity {
     String detectedLanguage;
     Translate translate;
 
+    int idLanguage = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getTranslateService();
         iv_camera_option=findViewById(R.id.iv_camera_option);
         iv_camera_option.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,16 +106,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(checkInternetConnection()){
-                    getTranslateService();
+                    //getTranslateService();
                     translate();
+                    String CurrentValue = SpinnerFrom.getItemAtPosition(SpinnerFrom.getSelectedItemPosition()).toString();
+                    Toast.makeText(getApplicationContext(),CurrentValue,Toast.LENGTH_SHORT).show();
+                    if(CurrentValue.equals("Auto Detect")){
+                        TextFrom.setText("Auto detected : "+ LanguageDetect());
+                    }
                     LanguageDetect();
                 } else{
                     Translated.setText("No internet connection");
                 }
                 EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
-                TextFrom.setText(LanguageDetect());
-                int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
-                SpinnerFrom.setSelection(idLanguage);
+                /*idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
+                SpinnerFrom.setSelection(idLanguage);*/
+                idLanguage = 0;
 
             }
 
