@@ -2,7 +2,7 @@ package com.example.linguasnap;
 
 public class TranslateTo {
     public String selectCountry(String Country) {
-        String text = "based";
+        String text = "English";
         switch (Country){
             case "Afrikaans":
                 text ="af";

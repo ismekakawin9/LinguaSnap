@@ -1,7 +1,9 @@
 package com.example.linguasnap;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -26,6 +28,8 @@ import com.google.cloud.translate.Detection;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent cameraIntent= new Intent(MainActivity.this,ImageToTextActivity.class);
-                startActivity(cameraIntent);
+                startActivityForResult(cameraIntent,utils.IMAGE_ACTIVITY_CODE);
             }
         });
         String [] languages = getResources().getStringArray(R.array.LanguageFrom);
@@ -105,17 +109,16 @@ public class MainActivity extends AppCompatActivity {
                 if(checkInternetConnection()){
                     getTranslateService();
                     translate();
-                    LanguageDetect();
+                    //LanguageDetect();
                 } else{
                     Translated.setText("No internet connection");
                 }
                 EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
-                TextFrom.setText(LanguageDetect());
-                int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
-                SpinnerFrom.setSelection(idLanguage);
+//                TextFrom.setText(LanguageDetect());
+//                int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
+//                SpinnerFrom.setSelection(idLanguage);
 
             }
-
         });
     }
     public void getTranslateService() {
@@ -142,10 +145,14 @@ public class MainActivity extends AppCompatActivity {
 
         //Get input text to be translated:
         originalText = EnterText.getText().toString();
-        Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.model(tf.selectCountry(BaseLanguage)));
+        Detection detect = translate.detect(originalText);
+        String detectedText = detect.getLanguage();
+        Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(detectedText));
         translatedText = translation.getTranslatedText();
         //Translated text and original text are set to TextViews:
         Translated.setText(translatedText);
+
+
     }
 
     public String LanguageDetect(){
@@ -171,4 +178,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != Activity.RESULT_OK){
+            return;
+        }
+
+        if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
+            String value = data.getStringExtra("value");
+            EnterText.setText(value);
+            originalText=value;
+        }
+    }
 }

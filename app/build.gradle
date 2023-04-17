@@ -60,6 +60,7 @@ dependencies {
 
     // To recognize Korean script
     implementation 'com.google.mlkit:text-recognition-korean:16.0.0-beta6'
+
     implementation platform('com.google.cloud:libraries-bom:26.1.4')
     implementation 'com.google.cloud:google-cloud-translate'
 }

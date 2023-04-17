@@ -42,6 +42,7 @@ import java.util.Date;
 
 public class ImageToTextActivity extends AppCompatActivity {
 
+    private String textResult;
     private TextView tvPictureStatus;
     private String currentImagePath=null;
     private Uri imageUri;
@@ -50,6 +51,8 @@ public class ImageToTextActivity extends AppCompatActivity {
     private ImageView ivImport;
     private TextView tvTranslatedText;
     private ConstraintLayout clConstraintLayout;
+
+    private ImageView ivTranslate;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +71,32 @@ public class ImageToTextActivity extends AppCompatActivity {
             }
         });
 
+        ivImport = findViewById(R.id.iv_import);
+        ivImport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startGalleryActivity();
+            }
+        });
+
+        ivTranslate = findViewById(R.id.iv_translate);
+        ivTranslate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent resultIntent = new Intent();
+
+                resultIntent.putExtra("value", textResult);
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+            }
+        });
+
+    }
+
+    public void startGalleryActivity() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Choose your apps"), utils.GALLERY_PICK_CODE);
     }
 
     public void captureImage(){
@@ -147,7 +176,7 @@ public class ImageToTextActivity extends AppCompatActivity {
                                     result.append(lineText+"\n");
                                 }
                             }
-
+                            textResult= String.valueOf(result);
                             displayText(String.valueOf(result));
                         }
                     }).addOnFailureListener(new OnFailureListener() {
