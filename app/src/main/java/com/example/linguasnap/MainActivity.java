@@ -147,8 +147,14 @@ public class MainActivity extends AppCompatActivity {
         originalText = EnterText.getText().toString();
         Detection detect = translate.detect(originalText);
         String detectedText = detect.getLanguage();
-        Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(detectedText));
-        translatedText = translation.getTranslatedText();
+        if(BaseLanguage.equals("Auto Detect")) {
+            Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(detectedText));
+            translatedText = translation.getTranslatedText();
+        }
+        else {
+            Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(tf.selectCountry(BaseLanguage)));
+            translatedText = translation.getTranslatedText();
+        }
         //Translated text and original text are set to TextViews:
         Translated.setText(translatedText);
 

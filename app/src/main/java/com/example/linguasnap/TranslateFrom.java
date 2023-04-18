@@ -407,7 +407,7 @@ public class TranslateFrom {
                 text ="zu";
                 break;
             case "Auto Detect":
-                text ="base";
+                text ="based";
                 break;
         }
         return text;
