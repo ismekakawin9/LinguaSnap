@@ -6,6 +6,49 @@
     android:layout_height="match_parent"
     tools:context=".ImageToTextActivity">
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:backgroundTint="#ECE8E8"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="false"
+        android:layout_marginVertical="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline10"
+        app:layout_constraintEnd_toStartOf="@+id/gl_vertical_right"
+        app:layout_constraintStart_toStartOf="@+id/gl_vertical_left"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/sp_from"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:entries="@array/ocrLanguages"
+                android:textSize="30dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ProgressBar
+        android:id="@+id/pb_load_scanning"
+        style="?android:attr/progressBarStyle"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/cl_translated_layout"
+        app:layout_constraintEnd_toStartOf="@+id/gl_vertical_right"
+        app:layout_constraintStart_toStartOf="@+id/cl_translated_layout"
+        app:layout_constraintTop_toTopOf="@+id/cl_translated_layout" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/gl_vertical_left"
         android:layout_width="wrap_content"
@@ -25,14 +68,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.04" />
+        app:layout_constraintGuide_percent="0.1" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline11"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.56" />
+        app:layout_constraintGuide_percent="0.55" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
@@ -93,7 +136,7 @@
             android:id="@+id/iv_camera"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="15dp"
+            android:layout_margin="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline1"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
@@ -104,7 +147,7 @@
             android:id="@+id/iv_import"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="15dp"
+            android:layout_margin="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iv_camera"
@@ -170,7 +213,7 @@
             android:id="@+id/imageView2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="12dp"
+            android:layout_margin="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline12"
             app:layout_constraintStart_toStartOf="@+id/guideline13"
@@ -189,7 +232,7 @@
             app:srcCompat="@drawable/translate_icon" />
 
         <ImageView
-            android:id="@+id/imageView9"
+            android:id="@+id/iv_search_text"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="15dp"

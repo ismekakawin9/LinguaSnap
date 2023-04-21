@@ -36,12 +36,14 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
+    String [] languages;
     private ImageView iv_camera_option;
     private EditText EnterText;
     private TextView Translated;
     private String originalText;
     private String translatedText;
     private boolean connected;
+    private Spinner SpinnerFrom;
     TranslateFrom tf = new TranslateFrom();
     TranslateTo to = new TranslateTo();
     String SelectedLanguage;
@@ -63,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(cameraIntent,utils.IMAGE_ACTIVITY_CODE);
             }
         });
-        String [] languages = getResources().getStringArray(R.array.LanguageFrom);
+        languages = getResources().getStringArray(R.array.LanguageFrom);
         TextView TextFrom = findViewById(R.id.TextFrom);
         TextView TextTo = findViewById(R.id.TextTo);
-        Spinner SpinnerFrom = (Spinner) findViewById(R.id.SpinnerFrom);
+        SpinnerFrom = (Spinner) findViewById(R.id.SpinnerFrom);
         Spinner SpinnerTo = (Spinner) findViewById(R.id.SpinnerTo);
         ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.LanguageFrom, android.R.layout.simple_spinner_item);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.LanguageTo, android.R.layout.simple_spinner_item);
@@ -141,8 +143,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void translate() {
-
-
         //Get input text to be translated:
         originalText = EnterText.getText().toString();
         Detection detect = translate.detect(originalText);
@@ -194,6 +194,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
             String value = data.getStringExtra("value");
+            String fromLanguage = data.getStringExtra("fromLanguage");
+            int idLanguage = Arrays.asList(languages).indexOf(fromLanguage);
+            Toast.makeText(MainActivity.this,fromLanguage,Toast.LENGTH_LONG).show();
+            SpinnerFrom.setSelection(idLanguage);
             EnterText.setText(value);
             originalText=value;
         }

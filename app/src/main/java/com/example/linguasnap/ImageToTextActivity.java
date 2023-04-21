@@ -17,6 +17,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,28 +39,38 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ImageToTextActivity extends AppCompatActivity {
-
     private String textResult;
-    private TextView tvPictureStatus;
     private String currentImagePath=null;
     private Uri imageUri;
+    private TextView tvPictureStatus;
     private ImageView ivCamera;
     private ImageView ivImage;
     private ImageView ivImport;
     private TextView tvTranslatedText;
     private ConstraintLayout clConstraintLayout;
-
     private ImageView ivTranslate;
+    private ImageView ivSearchText;
+    private ProgressBar pbLoading;
+    private Spinner spFrom;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_to_text);
 
+        tvPictureStatus=findViewById(R.id.tv_picture_status);
+        ivTranslate = findViewById(R.id.iv_translate);
         ivCamera =findViewById(R.id.iv_camera);
+        ivImport = findViewById(R.id.iv_import);
+        ivSearchText=findViewById(R.id.iv_search_text);
+        pbLoading=findViewById(R.id.pb_load_scanning);
+        spFrom=findViewById(R.id.sp_from);
+
         ivCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,7 +83,6 @@ public class ImageToTextActivity extends AppCompatActivity {
             }
         });
 
-        ivImport = findViewById(R.id.iv_import);
         ivImport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,18 +90,47 @@ public class ImageToTextActivity extends AppCompatActivity {
             }
         });
 
-        ivTranslate = findViewById(R.id.iv_translate);
         ivTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent resultIntent = new Intent();
 
                 resultIntent.putExtra("value", textResult);
+                resultIntent.putExtra("fromLanguage",spFrom.getSelectedItem().toString());
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
             }
         });
 
+        ivSearchText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchText();
+            }
+        });
+    }
+
+    public void searchText(){
+        if(textResult!=null){
+            String searchString = textResult;
+            String url = null;
+            try {
+                url = "https://www.google.com/search?q=" + URLEncoder.encode(searchString, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            startActivity(intent);
+        }
+    }
+
+    public void loading(){
+        pbLoading.setVisibility(View.VISIBLE);
+    }
+
+    public void loadingFinished(){
+        pbLoading.setVisibility(View.INVISIBLE);
     }
 
     public void startGalleryActivity() {
@@ -130,38 +170,13 @@ public class ImageToTextActivity extends AppCompatActivity {
     }
 
     public void recognizeText() {
-        /*spinner = findViewById(R.id.spinner);
-        tv_text = findViewById(R.id.tv_text);*/
-
         InputImage image = null;
         try {
             image = InputImage.fromFilePath(this, imageUri);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-//        TextRecognizer recognizer= getTextRecognizer(spinner.getSelectedItem().toString());
-        /*
-// When using Chinese script library
-        TextRecognizer recognizer =
-                TextRecognition.getClient(new ChineseTextRecognizerOptions.Builder().build());
-
-// When using Devanagari script library
-        TextRecognizer recognizer =
-                TextRecognition.getClient(new DevanagariTextRecognizerOptions.Builder().build());
-
-// When using Japanese script library
-        TextRecognizer recognizer =
-                TextRecognition.getClient(new JapaneseTextRecognizerOptions.Builder().build());
-
-// When using Korean script library
-        TextRecognizer recognizer =
-                TextRecognition.getClient(new KoreanTextRecognizerOptions.Builder().build());*/
-
-        TextRecognizer recognizer =
-                TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-
+        TextRecognizer recognizer = getTextRecognizer(spFrom.getSelectedItem().toString());
 
         if(recognizer!=null){
             assert image != null;
@@ -192,42 +207,47 @@ public class ImageToTextActivity extends AppCompatActivity {
     }
 
     public void displayText(String result){
+        loadingFinished();
         clConstraintLayout=findViewById(R.id.cl_translated_layout);
         clConstraintLayout.setVisibility(View.VISIBLE);
-
         tvTranslatedText=findViewById(R.id.tv_translated);
         tvTranslatedText.setText(result);
     }
 
-    /*TextRecognizer getTextRecognizer(String languageCode){
+    TextRecognizer getTextRecognizer(String languageCode){
         switch (languageCode){
-            case "Latin":{
-                TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-                return recognizer;
-            }
             case "Japanese":{
                 TextRecognizer recognizer =
                         TextRecognition.getClient(new JapaneseTextRecognizerOptions.Builder().build());
                 return recognizer;
             }
-            case "Chinese":{
+            case "Chinese (Simplified)":
+            case "Chinese (Traditional)":{
                 TextRecognizer recognizer =
                         TextRecognition.getClient(new ChineseTextRecognizerOptions.Builder().build());
                 return recognizer;
             }
+
             case "Korean":{
                 TextRecognizer recognizer =
                         TextRecognition.getClient(new KoreanTextRecognizerOptions.Builder().build());
                 return recognizer;
             }
-            case "Devanagari ":{
+
+            case "Hindi":
+            case "Nepali":
+            case "Marathi": {
                 TextRecognizer recognizer =
                         TextRecognition.getClient(new DevanagariTextRecognizerOptions.Builder().build());
                 return recognizer;
             }
+
+            default:{
+                TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+                return recognizer;
+            }
         }
-        return null;
-    }*/
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -248,6 +268,8 @@ public class ImageToTextActivity extends AppCompatActivity {
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            tvPictureStatus.setVisibility(View.INVISIBLE);
+            loading();
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 imageUri = result.getUri();

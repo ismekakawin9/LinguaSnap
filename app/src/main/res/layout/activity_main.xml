@@ -90,8 +90,31 @@
         android:elevation="10dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline5"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline1"
-        app:layout_constraintTop_toTopOf="@+id/guideline3">
+        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:layout_constraintVertical_bias="1.0">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.25" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6" />
 
         <TextView
             android:id="@+id/TextFrom"
@@ -117,8 +140,10 @@
             android:hint="Enter text here...."
             app:layout_constraintBottom_toTopOf="@+id/btnTranslate"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="@+id/TextFrom"
-            app:layout_constraintTop_toBottomOf="@+id/TextFrom">
+            app:layout_constraintTop_toBottomOf="@+id/TextFrom"
+            app:layout_constraintVertical_bias="0.0">
 
         </EditText>
 
@@ -138,10 +163,10 @@
             android:id="@+id/iv_microphone"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="18dp"
+            android:layout_margin="17dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/TextFrom"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline16"
+            app:layout_constraintStart_toStartOf="@+id/EnterText"
             app:layout_constraintTop_toBottomOf="@+id/EnterText"
             app:srcCompat="@drawable/microphone_black_shape" />
 
@@ -149,10 +174,11 @@
             android:id="@+id/iv_camera_option"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_microphone"
-            app:layout_constraintEnd_toStartOf="@+id/btnTranslate"
-            app:layout_constraintStart_toEndOf="@+id/iv_microphone"
-            app:layout_constraintTop_toTopOf="@+id/iv_microphone"
+            android:layout_margin="17dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline9"
+            app:layout_constraintStart_toStartOf="@+id/guideline16"
+            app:layout_constraintTop_toBottomOf="@+id/EnterText"
             app:srcCompat="@drawable/camera_icon" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -203,20 +229,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.76" />
+            app:layout_constraintGuide_percent="0.85" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.61" />
+            app:layout_constraintGuide_percent="0.70" />
 
         <ImageView
             android:id="@+id/imageView3"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="12dp"
+            android:layout_margin="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline7"
@@ -227,7 +253,7 @@
             android:id="@+id/imageView4"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="12dp"
+            android:layout_margin="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/guideline7"
             app:layout_constraintStart_toStartOf="@+id/guideline8"
