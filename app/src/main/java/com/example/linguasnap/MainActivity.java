@@ -118,10 +118,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(checkInternetConnection()){
+                    if(!BaseLanguage.equals(SelectedLanguage)){
                     getTranslateService();
                     translate();
                     //LanguageDetect();
                     ClickCallDictionary();
+                    }
+                    else {
+                        originalText = EnterText.getText().toString();
+                        Translated.setText(originalText);
+                    }
                 } else{
                     Translated.setText("No internet connection");
                 }
