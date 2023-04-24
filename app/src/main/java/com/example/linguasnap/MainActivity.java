@@ -3,6 +3,7 @@ package com.example.linguasnap;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
@@ -23,6 +24,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.linguasnap.API.ApiService;
+import com.example.linguasnap.model.Word;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.translate.Detection;
 import com.google.cloud.translate.Translate;
@@ -34,6 +37,11 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView iv_camera_option;
@@ -48,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     String BaseLanguage;
     String detectedLanguage;
     Translate translate;
+
 
 
     @Override
@@ -110,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     getTranslateService();
                     translate();
                     //LanguageDetect();
+                    ClickCallDictionary();
                 } else{
                     Translated.setText("No internet connection");
                 }
@@ -156,21 +166,21 @@ public class MainActivity extends AppCompatActivity {
             translatedText = translation.getTranslatedText();
         }
         //Translated text and original text are set to TextViews:
-        Translated.setText(translatedText);
+        //Translated.setText(translatedText);
 
 
     }
 
-    public String LanguageDetect(){
+   /* public String LanguageDetect(){
         //int duration = Toast.LENGTH_SHORT;
         //Context context = getApplicationContext();
         originalText = EnterText.getText().toString();
         Detection detection = translate.detect(originalText);
         detectedLanguage = detection.getLanguage();
-        /*Toast toast = Toast.makeText(context,detectedLanguage,duration);
-        toast.show();*/
+        *//*Toast toast = Toast.makeText(context,detectedLanguage,duration);
+        toast.show();*//*
         return tf.detect(detectedLanguage);
-    }
+    }*/
     public boolean checkInternetConnection() {
 
         //Check internet connection:
@@ -198,4 +208,40 @@ public class MainActivity extends AppCompatActivity {
             originalText=value;
         }
     }
+    private void ClickCallDictionary(){
+        ApiService.apiservice.engDictionary(translatedText).enqueue(new Callback<List<Word>>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onResponse(Call<List<Word>> call, Response<List<Word>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Get the first word object in the list
+                    Word word = response.body().get(0);
+
+                    // Get the first meaning object in the list
+                    Word.Meaning meaning = word.getMeanings().get(0);
+
+                    // Get the first definition object in the list
+                    Word.Meaning.Definition definition = meaning.getDefinitions().get(0);
+
+                    // Use the getter and setter methods to access the "definition" field
+                    String definitionText = definition.getDefinition();
+                    Translated.setText(translatedText +"\nDefinitions : \n" +definitionText);
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<Word>> call, Throwable t) {
+
+            }
+        });
+    }
+/*    public void Swap(){
+        String SpinnerF = SpinnerFrom.getSelectedItem().toString();
+        String SpinnerT = SpinnerFrom.getSelectedItem().toString();
+        if(!SpinnerF.equals(SpinnerT)){
+            int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
+            SpinnerFrom.setSelection(idLanguage);
+        }
+    }*/
 }
