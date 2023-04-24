@@ -167,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
         originalText = EnterText.getText().toString();
         Detection detection = translate.detect(originalText);
         detectedLanguage = detection.getLanguage();
-        /*Toast toast = Toast.makeText(context,detectedLanguage,duration);
-        toast.show();*/
+        *//*Toast toast = Toast.makeText(context,detectedLanguage,duration);
+        toast.show();*//*
         return tf.detect(detectedLanguage);
     }
     public boolean checkInternetConnection() {
