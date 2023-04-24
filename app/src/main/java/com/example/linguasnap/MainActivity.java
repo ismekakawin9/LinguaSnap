@@ -3,6 +3,7 @@ package com.example.linguasnap;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
@@ -28,6 +29,10 @@ import com.google.cloud.translate.Detection;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -39,24 +44,25 @@ public class MainActivity extends AppCompatActivity {
     String [] languages;
     private ImageView iv_camera_option;
     private EditText EnterText;
-    private TextView Translated;
+    private TextView Translated, user_Email;
     private String originalText;
     private String translatedText;
     private boolean connected;
     private Spinner SpinnerFrom;
+    Button btnTranslate, btn_logout, btn_history;
     TranslateFrom tf = new TranslateFrom();
     TranslateTo to = new TranslateTo();
     String SelectedLanguage;
     String BaseLanguage;
     String detectedLanguage;
+    FirebaseAuth mAuth;
+    FirebaseUser mUser;
     Translate translate;
-
-
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         iv_camera_option=findViewById(R.id.iv_camera_option);
         iv_camera_option.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,6 +81,33 @@ public class MainActivity extends AppCompatActivity {
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         SpinnerFrom.setAdapter(adapter1);
+        EnterText = findViewById(R.id.EnterText);
+        Translated = findViewById(R.id.Translated);
+        btnTranslate = findViewById(R.id.btnTranslate);
+        btn_logout=findViewById(R.id.btn_logout);
+        btn_history=findViewById(R.id.btn_history);
+        user_Email=findViewById(R.id.user_Email);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        mUser = mAuth.getCurrentUser();
+        user_Email.setText(mUser.getEmail());
+      btn_logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent1 = new Intent(MainActivity.this, activity_loginds.class);
+                intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent1);
+            }
+        });
+        btn_history.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intenthis = new Intent(MainActivity.this,HistoryActivity.class);
+                startActivity(intenthis);
+            }
+        });
         SpinnerFrom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -82,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 String Language = adapterView.getItemAtPosition(i).toString();
                 TextFrom.setText(Language);
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
@@ -102,15 +134,20 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        EnterText = findViewById(R.id.EnterText);
-        Translated = findViewById(R.id.Translated);
-        Button btnTranslate = findViewById(R.id.btnTranslate);
         btnTranslate.setOnClickListener(new View.OnClickListener() {
+            String email= user_Email.getText().toString().trim();
+            int index = email.indexOf(".");
+            String result = email.substring(0, index);
+            DatabaseReference usersRef = database.getReference("User");
             @Override
             public void onClick(View view) {
                 if(checkInternetConnection()){
                     getTranslateService();
                     translate();
+                    String textinput = EnterText.getText().toString().trim();
+                    String translatetext= Translated.getText().toString().trim();
+                    User user = new User(textinput,translatetext);
+                    usersRef.push().child(result).setValue(user);
                     //LanguageDetect();
                 } else{
                     Translated.setText("No internet connection");
@@ -119,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
 //                TextFrom.setText(LanguageDetect());
 //                int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
 //                SpinnerFrom.setSelection(idLanguage);
-
             }
         });
     }
@@ -157,20 +193,18 @@ public class MainActivity extends AppCompatActivity {
         }
         //Translated text and original text are set to TextViews:
         Translated.setText(translatedText);
-
-
     }
 
-    public String LanguageDetect(){
+  /*  public String LanguageDetect(){
         //int duration = Toast.LENGTH_SHORT;
         //Context context = getApplicationContext();
         originalText = EnterText.getText().toString();
         Detection detection = translate.detect(originalText);
         detectedLanguage = detection.getLanguage();
-        *//*Toast toast = Toast.makeText(context,detectedLanguage,duration);
-        toast.show();*//*
+        Toast toast = Toast.makeText(context,detectedLanguage,duration);
+        toast.show();
         return tf.detect(detectedLanguage);
-    }
+    }*/
     public boolean checkInternetConnection() {
 
         //Check internet connection:
