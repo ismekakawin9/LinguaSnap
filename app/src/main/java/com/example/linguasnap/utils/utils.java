@@ -1,4 +1,4 @@
-package com.example.linguasnap;
+package com.example.linguasnap.utils;
 
 public class utils {
     public static final int CAMERA_PICK_CODE = 200;

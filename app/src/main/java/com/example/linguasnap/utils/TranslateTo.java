@@ -1,8 +1,8 @@
-package com.example.linguasnap;
+package com.example.linguasnap.utils;
 
-public class TranslateFrom {
+public class TranslateTo {
     public String selectCountry(String Country) {
-        String text = "based";
+        String text = "English";
         switch (Country){
             case "Afrikaans":
                 text ="af";
@@ -408,24 +408,6 @@ public class TranslateFrom {
                 break;
             case "Auto Detect":
                 text ="based";
-                break;
-        }
-        return text;
-    }
-    public String detect (String Language){
-        String text = "based";
-        switch(Language){
-            case "vi":
-                text ="Vietnamese";
-                break;
-            case "en":
-                text = "English";
-                break;
-            case "it":
-                text ="Italian";
-                break;
-            case "cn":
-                text ="Chinese";
                 break;
         }
         return text;

@@ -1,4 +1,4 @@
-package com.example.linguasnap;
+package com.example.linguasnap.main;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -6,34 +6,46 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.os.StrictMode;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.linguasnap.imageToText.ImageToTextActivity;
+import com.example.linguasnap.R;
+import com.example.linguasnap.client.GrammarBotClient;
+import com.example.linguasnap.model.GrammarBotResponse;
+import com.example.linguasnap.utils.TextCorrection;
+import com.example.linguasnap.utils.TranslateFrom;
+import com.example.linguasnap.utils.TranslateTo;
+import com.example.linguasnap.utils.utils;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.translate.Detection;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
     String [] languages;
@@ -44,12 +56,16 @@ public class MainActivity extends AppCompatActivity {
     private String translatedText;
     private boolean connected;
     private Spinner SpinnerFrom;
+    private TextView tv_suggestedText;
+    private LinearLayout llSuggestion;
+    private  String suggestionText;
     TranslateFrom tf = new TranslateFrom();
     TranslateTo to = new TranslateTo();
     String SelectedLanguage;
     String BaseLanguage;
     String detectedLanguage;
     Translate translate;
+
 
 
     @Override
@@ -61,10 +77,12 @@ public class MainActivity extends AppCompatActivity {
         iv_camera_option.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent cameraIntent= new Intent(MainActivity.this,ImageToTextActivity.class);
-                startActivityForResult(cameraIntent,utils.IMAGE_ACTIVITY_CODE);
+                Intent cameraIntent= new Intent(MainActivity.this, ImageToTextActivity.class);
+                startActivityForResult(cameraIntent, utils.IMAGE_ACTIVITY_CODE);
             }
         });
+        llSuggestion=findViewById(R.id.ll_suggestion);
+        tv_suggestedText = findViewById(R.id.tv_suggestedText);
         languages = getResources().getStringArray(R.array.LanguageFrom);
         TextView TextFrom = findViewById(R.id.TextFrom);
         TextView TextTo = findViewById(R.id.TextTo);
@@ -112,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
                     getTranslateService();
                     translate();
                     //LanguageDetect();
+//                    sendGrammarBotRequest();
+
                 } else{
                     Translated.setText("No internet connection");
                 }
@@ -119,7 +139,16 @@ public class MainActivity extends AppCompatActivity {
 //                TextFrom.setText(LanguageDetect());
 //                int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
 //                SpinnerFrom.setSelection(idLanguage);
+            }
+        });
 
+        llSuggestion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(suggestionText!=null) {
+                    EnterText.setText(suggestionText);
+                    llSuggestion.setVisibility(View.GONE);
+                }
             }
         });
     }
@@ -157,9 +186,48 @@ public class MainActivity extends AppCompatActivity {
         }
         //Translated text and original text are set to TextViews:
         Translated.setText(translatedText);
-
-
     }
+
+    public void sendGrammarBotRequest(){
+        RequestBody body = new FormBody.Builder()
+                .add("text", EnterText.getText().toString())
+                .add("language", "en-US")
+                .build();
+
+        try {
+            GrammarBotClient.sendRequest("https://grammarbot.p.rapidapi.com/check", body, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if(response.isSuccessful()){
+                        Gson gson = new Gson();
+                        GrammarBotResponse grammarBotResponse = gson.fromJson(response.body().charStream(), GrammarBotResponse.class);
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(grammarBotResponse.getMatches().size() != 0){
+                                    llSuggestion.setVisibility(View.VISIBLE);
+                                    suggestionText = TextCorrection.getSuggestedText(grammarBotResponse.getMatches());
+                                    MainActivity.this.tv_suggestedText.setText(suggestionText);
+                                }
+                                else {
+                                    llSuggestion.setVisibility(View.GONE);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public String LanguageDetect(){
         //int duration = Toast.LENGTH_SHORT;
