@@ -146,7 +146,8 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="@+id/TextFrom"
             app:layout_constraintTop_toBottomOf="@+id/TextFrom"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.0"
+            android:maxLength="150">
 
         </EditText>
 
@@ -275,20 +276,7 @@
             app:srcCompat="@drawable/search_icon" />
 
         <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Definition"
-            android:textColor="#C1BEBE"
-            android:textStyle="bold"
-            android:visibility="visible"
-            android:textSize="18dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline19"
-            app:layout_constraintStart_toStartOf="@+id/TextTo"
-            app:layout_constraintTop_toTopOf="@+id/guideline19" />
-
-        <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/WordDefinition"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="20dp"
@@ -299,8 +287,8 @@
             android:textStyle="italic"
             app:layout_constraintBottom_toTopOf="@+id/guideline6"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/textView3"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+            app:layout_constraintStart_toStartOf="@+id/Translated"
+            app:layout_constraintTop_toTopOf="@+id/guideline19" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

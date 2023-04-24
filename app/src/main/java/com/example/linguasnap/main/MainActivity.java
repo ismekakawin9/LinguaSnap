@@ -22,10 +22,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.linguasnap.API.ApiService;
 import com.example.linguasnap.imageToText.ImageToTextActivity;
 import com.example.linguasnap.R;
 import com.example.linguasnap.client.GrammarBotClient;
 import com.example.linguasnap.model.GrammarBotResponse;
+import com.example.linguasnap.model.Word;
 import com.example.linguasnap.utils.TextCorrection;
 import com.example.linguasnap.utils.TranslateFrom;
 import com.example.linguasnap.utils.TranslateTo;
@@ -40,6 +42,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     String BaseLanguage;
     String detectedLanguage;
     Translate translate;
+    private TextView WordDefinition;
 
 
 
@@ -82,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         llSuggestion=findViewById(R.id.ll_suggestion);
+        WordDefinition = findViewById(R.id.WordDefinition);
         tv_suggestedText = findViewById(R.id.tv_suggestedText);
         languages = getResources().getStringArray(R.array.LanguageFrom);
         TextView TextFrom = findViewById(R.id.TextFrom);
@@ -126,19 +131,25 @@ public class MainActivity extends AppCompatActivity {
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(checkInternetConnection()){
-                    getTranslateService();
-                    translate();
-                    //LanguageDetect();
-//                    sendGrammarBotRequest();
-
-                } else{
-                    Translated.setText("No internet connection");
-                }
                 EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
+                if (!BaseLanguage.equals(SelectedLanguage)) {
+                    if (checkInternetConnection()) {
+                        getTranslateService();
+                        translate();
+                        //LanguageDetect();
+//                    sendGrammarBotRequest();
+                        clickCallApi();
+
+                    } else {
+                        Translated.setText("No internet connection");
+                    }
 //                TextFrom.setText(LanguageDetect());
 //                int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
 //                SpinnerFrom.setSelection(idLanguage);
+                }
+                else{
+                    Translated.setText(originalText);
+                }
             }
         });
 
@@ -269,5 +280,31 @@ public class MainActivity extends AppCompatActivity {
             EnterText.setText(value);
             originalText=value;
         }
+    }
+    private void clickCallApi(){
+        ApiService.apiservice.engDictionary(translatedText).enqueue(new retrofit2.Callback<List<Word>>() {
+            @Override
+            public void onResponse(retrofit2.Call<List<Word>> call, retrofit2.Response<List<Word>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Get the first word object in the list
+                    Word word = response.body().get(0);
+
+                    // Get the first meaning object in the list
+                    Word.Meaning meaning = word.getMeanings().get(0);
+
+                    // Get the first definition object in the list
+                    Word.Meaning.Definition definition = meaning.getDefinitions().get(0);
+
+                    // Use the getter and setter methods to access the "definition" field
+                    String definitionText = definition.getDefinition();
+                    WordDefinition.setText(definitionText);
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<List<Word>> call, Throwable t) {
+
+            }
+        });
     }
 }
