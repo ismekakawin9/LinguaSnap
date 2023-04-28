@@ -4,10 +4,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -41,6 +45,8 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,7 +57,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    String [] languages;
+    String [] fromLanguages;
+    String [] toLanguages;
+    private ImageView ivSearchText;
+    private ImageView ivCopyText;
     private ImageView iv_camera_option;
     private EditText EnterText;
     private TextView Translated;
@@ -59,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private String translatedText;
     private boolean connected;
     private Spinner SpinnerFrom;
+    private Spinner SpinnerTo;
     private TextView tv_suggestedText;
     private LinearLayout llSuggestion;
     private  String suggestionText;
@@ -85,14 +95,18 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(cameraIntent, utils.IMAGE_ACTIVITY_CODE);
             }
         });
+
         llSuggestion=findViewById(R.id.ll_suggestion);
         WordDefinition = findViewById(R.id.WordDefinition);
         tv_suggestedText = findViewById(R.id.tv_suggestedText);
-        languages = getResources().getStringArray(R.array.LanguageFrom);
+
+        fromLanguages = getResources().getStringArray(R.array.LanguageFrom);
+        toLanguages = getResources().getStringArray(R.array.LanguageTo);
+
         TextView TextFrom = findViewById(R.id.TextFrom);
         TextView TextTo = findViewById(R.id.TextTo);
         SpinnerFrom = (Spinner) findViewById(R.id.SpinnerFrom);
-        Spinner SpinnerTo = (Spinner) findViewById(R.id.SpinnerTo);
+        SpinnerTo = (Spinner) findViewById(R.id.SpinnerTo);
         ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.LanguageFrom, android.R.layout.simple_spinner_item);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.LanguageTo, android.R.layout.simple_spinner_item);
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -111,6 +125,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        if(getSavedFromLanguage()!= null){
+            int idLanguage = Arrays.asList(fromLanguages).indexOf(getSavedFromLanguage());
+            SpinnerFrom.setSelection(idLanguage);
+        }
+
         SpinnerTo.setAdapter(adapter2);
         SpinnerTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -125,6 +144,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        if(getSavedToLanguage()!= null){
+            int idLanguage = Arrays.asList(toLanguages).indexOf(getSavedToLanguage());
+            SpinnerTo.setSelection(idLanguage);
+        }
+
         EnterText = findViewById(R.id.EnterText);
         Translated = findViewById(R.id.Translated);
         Button btnTranslate = findViewById(R.id.btnTranslate);
@@ -160,6 +184,22 @@ public class MainActivity extends AppCompatActivity {
                     EnterText.setText(suggestionText);
                     llSuggestion.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        ivSearchText = findViewById(R.id.iv_text_search);
+        ivSearchText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchText();
+            }
+        });
+
+        ivCopyText = findViewById(R.id.iv_copy_content);
+        ivCopyText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveToClipboard();
             }
         });
     }
@@ -238,7 +278,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void searchText(){
+        if(translatedText!=null){
+            String searchString = translatedText;
+            String url = null;
+            try {
+                url = "https://www.google.com/search?q=" + URLEncoder.encode(searchString, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            startActivity(intent);
+        }
+    }
+    public void saveToClipboard(){
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
+        ClipData clip = ClipData.newPlainText("translatedText", translatedText);
+
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show();
+    }
+
+    public String getSavedFromLanguage(){
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+
+        String fromLanguage = sharedPreferences.getString("fromLanguage", null);
+        return fromLanguage;
+    }
+    public String getSavedToLanguage(){
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+
+        String toLanguage = sharedPreferences.getString("toLanguage", null);
+        return toLanguage;
+    }
 
     public String LanguageDetect(){
         //int duration = Toast.LENGTH_SHORT;
@@ -263,6 +338,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -274,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
             String value = data.getStringExtra("value");
             String fromLanguage = data.getStringExtra("fromLanguage");
-            int idLanguage = Arrays.asList(languages).indexOf(fromLanguage);
+            int idLanguage = Arrays.asList(fromLanguages).indexOf(fromLanguage);
             Toast.makeText(MainActivity.this,fromLanguage,Toast.LENGTH_LONG).show();
             SpinnerFrom.setSelection(idLanguage);
             EnterText.setText(value);
@@ -306,5 +384,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("fromLanguage", SpinnerFrom.getSelectedItem().toString());
+        editor.putString("toLanguage", SpinnerTo.getSelectedItem().toString());
+        editor.apply();
     }
 }
