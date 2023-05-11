@@ -1,9 +1,15 @@
 package com.example.linguasnap.main;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -13,6 +19,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.os.StrictMode;
@@ -27,6 +35,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.linguasnap.API.ApiService;
+import com.example.linguasnap.HistoryActivity;
+import com.example.linguasnap.User;
+import com.example.linguasnap.activity_loginds;
+import com.example.linguasnap.changepass;
 import com.example.linguasnap.imageToText.ImageToTextActivity;
 import com.example.linguasnap.R;
 import com.example.linguasnap.client.GrammarBotClient;
@@ -36,17 +48,23 @@ import com.example.linguasnap.utils.TextCorrection;
 import com.example.linguasnap.utils.TranslateFrom;
 import com.example.linguasnap.utils.TranslateTo;
 import com.example.linguasnap.utils.utils;
+import com.google.android.material.navigation.NavigationView;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.translate.Detection;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,9 +74,11 @@ import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     String [] fromLanguages;
     String [] toLanguages;
+    FirebaseAuth mAuth;
+    FirebaseUser mUser;
     private ImageView ivSearchText;
     private ImageView ivCopyText;
     private ImageView iv_camera_option;
@@ -79,13 +99,35 @@ public class MainActivity extends AppCompatActivity {
     String detectedLanguage;
     Translate translate;
     private TextView WordDefinition;
-
-
-
+    DrawerLayout drawerLayout;
+    NavigationView navigationView;
+    Toolbar toolbar;
+    ImageView iv_microphone;
+    private static final int RESULT_SPECCH = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //menu
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        toolbar = findViewById(R.id.toolbar2);
+        //
+        setSupportActionBar(toolbar);
+        //
+        navigationView.bringToFront();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        //
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.nav_tran);
+        navigationView.setCheckedItem(R.id.nav_logout);
+        navigationView.setCheckedItem(R.id.nav_his);
+
+        iv_microphone = findViewById(R.id.iv_microphone);
+
 
         iv_camera_option=findViewById(R.id.iv_camera_option);
         iv_camera_option.setOnClickListener(new View.OnClickListener() {
@@ -95,14 +137,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(cameraIntent, utils.IMAGE_ACTIVITY_CODE);
             }
         });
-
         llSuggestion=findViewById(R.id.ll_suggestion);
         WordDefinition = findViewById(R.id.WordDefinition);
         tv_suggestedText = findViewById(R.id.tv_suggestedText);
-
         fromLanguages = getResources().getStringArray(R.array.LanguageFrom);
         toLanguages = getResources().getStringArray(R.array.LanguageTo);
-
         TextView TextFrom = findViewById(R.id.TextFrom);
         TextView TextTo = findViewById(R.id.TextTo);
         SpinnerFrom = (Spinner) findViewById(R.id.SpinnerFrom);
@@ -125,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
         if(getSavedFromLanguage()!= null){
             int idLanguage = Arrays.asList(fromLanguages).indexOf(getSavedFromLanguage());
             SpinnerFrom.setSelection(idLanguage);
@@ -144,14 +184,16 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        if(getSavedToLanguage()!= null){
-            int idLanguage = Arrays.asList(toLanguages).indexOf(getSavedToLanguage());
-            SpinnerTo.setSelection(idLanguage);
-        }
+
 
         EnterText = findViewById(R.id.EnterText);
         Translated = findViewById(R.id.Translated);
         Button btnTranslate = findViewById(R.id.btnTranslate);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        mUser = mAuth.getCurrentUser();
+        String key = mAuth.getUid();
+        DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,6 +202,14 @@ public class MainActivity extends AppCompatActivity {
                     if (checkInternetConnection()) {
                         getTranslateService();
                         translate();
+                        String from = TextFrom.getText().toString().trim();
+                        String to = TextTo.getText().toString().trim();
+                        String textinput = EnterText.getText().toString().trim();
+                        String translatetext= Translated.getText().toString().trim();
+                        User user = new User(from,to,textinput,translatetext);
+                        usersRef.push().setValue(user);
+
+
                         //LanguageDetect();
 //                    sendGrammarBotRequest();
                         clickCallApi();
@@ -359,6 +409,30 @@ public class MainActivity extends AppCompatActivity {
             originalText=value;
         }
     }
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.nav_tran:
+                break;
+            case R.id.nav_his:
+                Intent intenthis = new Intent(MainActivity.this,HistoryActivity.class);
+                startActivity(intenthis);
+                break;
+            case R.id.nav_changpass:
+                Intent intenthis1 = new Intent(MainActivity.this, changepass.class);
+                startActivity(intenthis1);
+                break;
+            case R.id.nav_logout:
+                FirebaseAuth.getInstance().signOut();
+                Intent intent1 = new Intent(MainActivity.this, activity_loginds.class);
+                intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent1);
+                break;
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
     private void clickCallApi(){
         ApiService.apiservice.engDictionary(translatedText).enqueue(new retrofit2.Callback<List<Word>>() {
             @Override
@@ -394,5 +468,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("fromLanguage", SpinnerFrom.getSelectedItem().toString());
         editor.putString("toLanguage", SpinnerTo.getSelectedItem().toString());
         editor.apply();
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        super.onPointerCaptureChanged(hasCapture);
     }
 }
