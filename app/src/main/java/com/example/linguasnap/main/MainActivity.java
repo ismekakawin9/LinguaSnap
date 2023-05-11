@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
     String [] fromLanguages;
     String [] toLanguages;
     private ImageView ivSearchText;
+    private ProgressBar pbTranslation;
     private ImageView ivCopyText;
+    private ImageView ivSwitchLanguage;
     private ImageView iv_camera_option;
     private EditText EnterText;
     private TextView Translated;
@@ -72,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv_suggestedText;
     private LinearLayout llSuggestion;
     private  String suggestionText;
+    private TextView TextFrom;
+    private TextView TextTo;
     TranslateFrom tf = new TranslateFrom();
     TranslateTo to = new TranslateTo();
     String SelectedLanguage;
@@ -95,16 +100,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(cameraIntent, utils.IMAGE_ACTIVITY_CODE);
             }
         });
-
         llSuggestion=findViewById(R.id.ll_suggestion);
         WordDefinition = findViewById(R.id.WordDefinition);
         tv_suggestedText = findViewById(R.id.tv_suggestedText);
+        pbTranslation = findViewById(R.id.pb_loading);
 
         fromLanguages = getResources().getStringArray(R.array.LanguageFrom);
         toLanguages = getResources().getStringArray(R.array.LanguageTo);
 
-        TextView TextFrom = findViewById(R.id.TextFrom);
-        TextView TextTo = findViewById(R.id.TextTo);
+        TextFrom = findViewById(R.id.TextFrom);
+        TextTo = findViewById(R.id.TextTo);
         SpinnerFrom = (Spinner) findViewById(R.id.SpinnerFrom);
         SpinnerTo = (Spinner) findViewById(R.id.SpinnerTo);
         ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.LanguageFrom, android.R.layout.simple_spinner_item);
@@ -156,14 +161,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
+
                 if (!BaseLanguage.equals(SelectedLanguage)) {
                     if (checkInternetConnection()) {
                         getTranslateService();
+                        if(SpinnerFrom.getSelectedItem().toString().equals("English")){
+                            sendGrammarBotRequest();
+                        }
                         translate();
                         //LanguageDetect();
-//                    sendGrammarBotRequest();
                         clickCallApi();
-
                     } else {
                         Translated.setText("No internet connection");
                     }
@@ -174,6 +181,14 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     Translated.setText(originalText);
                 }
+            }
+        });
+
+        ivSwitchLanguage= findViewById(R.id.iv_swap_language);
+        ivSwitchLanguage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchLanguages();
             }
         });
 
@@ -224,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void translate() {
         //Get input text to be translated:
+        loadTranslation();
         originalText = EnterText.getText().toString();
         Detection detect = translate.detect(originalText);
         String detectedText = detect.getLanguage();
@@ -237,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //Translated text and original text are set to TextViews:
         Translated.setText(translatedText);
+        stopLoading();
     }
 
     public void sendGrammarBotRequest(){
@@ -302,6 +319,26 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show();
     }
 
+    public void loadTranslation(){
+        Translated.setVisibility(View.INVISIBLE);
+        WordDefinition.setVisibility(View.INVISIBLE);
+        pbTranslation.setVisibility(View.VISIBLE);
+    }
+
+    public void stopLoading(){
+        pbTranslation.setVisibility(View.INVISIBLE);
+        Translated.setVisibility(View.VISIBLE);
+        WordDefinition.setVisibility(View.VISIBLE);
+    }
+    public void switchLanguages(){
+        String fromLanguage= SpinnerFrom.getSelectedItem().toString();
+        String toLanguage = SpinnerTo.getSelectedItem().toString();
+        int changedFromLanguageId = Arrays.asList(fromLanguages).indexOf(toLanguage);
+        int changedToLanguageId = Arrays.asList(toLanguages).indexOf(fromLanguage);
+        SpinnerFrom.setSelection(changedFromLanguageId);
+        SpinnerTo.setSelection(changedToLanguageId);
+    }
+
     public String getSavedFromLanguage(){
         SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
 
@@ -338,9 +375,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -353,7 +387,6 @@ public class MainActivity extends AppCompatActivity {
             String value = data.getStringExtra("value");
             String fromLanguage = data.getStringExtra("fromLanguage");
             int idLanguage = Arrays.asList(fromLanguages).indexOf(fromLanguage);
-            Toast.makeText(MainActivity.this,fromLanguage,Toast.LENGTH_LONG).show();
             SpinnerFrom.setSelection(idLanguage);
             EnterText.setText(value);
             originalText=value;
