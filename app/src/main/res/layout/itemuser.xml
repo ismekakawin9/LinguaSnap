@@ -7,13 +7,13 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="33dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/txt_from"
             android:layout_width="wrap_content"
-            android:layout_height="33dp"
+            android:layout_height="wrap_content"
             android:text="TextView" />
 
         <Space
@@ -23,7 +23,7 @@
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
-            android:layout_height="33dp"
+            android:layout_height="wrap_content"
             android:text="To" />
 
         <Space
@@ -34,46 +34,21 @@
         <TextView
             android:id="@+id/txt_to"
             android:layout_width="wrap_content"
-            android:layout_height="33dp"
+            android:layout_height="wrap_content"
             android:text="TextView" />
-
-        <Space
-            android:layout_width="180dp"
-            android:layout_height="10dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/btnlike"
-            android:layout_width="wrap_content"
-            android:layout_height="33dp"
-            app:srcCompat="@drawable/favourite48" />
-
     </LinearLayout>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/txt_input"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="30dp"
+        android:textColor="#192EA1"
+        android:textSize="24sp" />
 
-        <LinearLayout
-            android:layout_width="360dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/txt_translate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/txt_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#192EA1"
-                android:textSize="24sp" />
-        </LinearLayout>
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/txt_translate"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:textSize="24sp" />
 
 </LinearLayout>

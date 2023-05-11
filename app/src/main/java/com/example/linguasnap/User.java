@@ -5,25 +5,12 @@ public class User {
     public String to;
     public String inputtext;
     public String translatetext;
-    public int thich;
-    public User(String from, String to, String textinput, String translatetext){
+    public User(){};
+    public User(String from, String to,String inputtext, String translatetext){
         this.from= from;
         this.to = to;
         this.inputtext=inputtext;
         this.translatetext=translatetext;
-    };
-    public User(String from, String to,String inputtext, String translatetext,int thich){
-        this.from= from;
-        this.to = to;
-        this.inputtext=inputtext;
-        this.translatetext=translatetext;
-        this.thich= thich;
-    }
-
-    public int getThich(){return  thich;}
-
-    public void setThich(int thich) {
-        this.thich = thich;
     }
 
     public String getFrom() {

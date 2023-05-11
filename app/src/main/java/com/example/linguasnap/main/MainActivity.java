@@ -108,7 +108,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        EnterText = findViewById(R.id.EnterText);
+        Translated = findViewById(R.id.Translated);
+        Button btnTranslate = findViewById(R.id.btnTranslate);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        mUser = mAuth.getCurrentUser();
+        String key = mAuth.getUid();
+        DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         //menu
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -185,15 +192,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
-        EnterText = findViewById(R.id.EnterText);
-        Translated = findViewById(R.id.Translated);
-        Button btnTranslate = findViewById(R.id.btnTranslate);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
-        String key = mAuth.getUid();
-        DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -204,12 +202,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         translate();
                         String from = TextFrom.getText().toString().trim();
                         String to = TextTo.getText().toString().trim();
-                        String textinput = EnterText.getText().toString().trim();
+                        String inputtext = EnterText.getText().toString().trim();
                         String translatetext= Translated.getText().toString().trim();
-                        User user = new User(from,to,textinput,translatetext);
+                        User user = new User(from,to,inputtext,translatetext);
                         usersRef.push().setValue(user);
-
-
                         //LanguageDetect();
 //                    sendGrammarBotRequest();
                         clickCallApi();

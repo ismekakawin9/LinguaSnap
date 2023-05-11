@@ -2,10 +2,15 @@ package com.example.linguasnap;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,9 +22,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import com.example.linguasnap.utils.utils;
 
 public class HistoryActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
@@ -38,7 +45,7 @@ public class HistoryActivity extends AppCompatActivity {
         email_user = findViewById(R.id.email_user);
         email_user.setText(mUser.getEmail());
         String key = mUser.getUid();
-        DatabaseReference usersRef = database.getReference().child("User").child(key).child("History");
+        DatabaseReference usersRef = database.getReference().child(key).child("History");
         ArrayList<User> userList;
         userList = new ArrayList<>();
         usersRef.addValueEventListener(new ValueEventListener() {
@@ -61,7 +68,7 @@ public class HistoryActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long i) {
                 ShowItemhistory(position);
 
-        }
+            }
 
             private void ShowItemhistory(int position) {
                 User user = userList.get(position);
