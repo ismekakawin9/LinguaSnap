@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "83985231229",
+    "firebase_url": "https://linguasnap1-default-rtdb.firebaseio.com",
+    "project_id": "linguasnap1",
+    "storage_bucket": "linguasnap1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83985231229:android:1296ff4e69bc2dd78cf014",
+        "android_client_info": {
+          "package_name": "com.example.linguasnap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "83985231229-q2rja23fv11ch36j42ch5pm93ulbj8kv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXJXN7usYnhRlQwEdG_S31D4xDh8kKPaY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "83985231229-q2rja23fv11ch36j42ch5pm93ulbj8kv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
