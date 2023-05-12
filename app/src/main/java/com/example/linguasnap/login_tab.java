@@ -86,7 +86,7 @@ public class login_tab extends Fragment {
                         if(task.isSuccessful()){
                             Toast.makeText(getActivity(),  "Login Succesfully",Toast.LENGTH_LONG).show();
                             Intent intentmain = new Intent(getActivity(), MainActivity.class);
-                            intentmain.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                            intentmain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             intentmain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intentmain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intentmain);

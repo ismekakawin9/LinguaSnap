@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="120dp" />
+            app:layout_constraintGuide_begin="100dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"
@@ -102,6 +102,7 @@
                     android:textSize="30dp" />
 
                 <ImageButton
+                    android:id="@+id/iv_swap_language"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:backgroundTint="#ECE8E8"
@@ -234,6 +235,17 @@
             app:layout_constraintStart_toStartOf="@+id/guideline1"
             app:layout_constraintTop_toTopOf="@+id/guideline17">
 
+            <ProgressBar
+                android:id="@+id/pb_load_translation"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline19"
                 android:layout_width="wrap_content"
@@ -263,6 +275,7 @@
                 android:text="This is a translated text"
                 android:textColor="@color/white"
                 android:textSize="18dp"
+                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/TextTo"
                 app:layout_constraintTop_toBottomOf="@+id/TextTo" />
@@ -320,6 +333,7 @@
                 android:textColor="#DCD9D9"
                 android:textSize="15dp"
                 android:textStyle="italic"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toTopOf="@+id/guideline6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/Translated"
@@ -334,7 +348,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.5" />
+            app:layout_constraintGuide_percent="0.58" />
 
         <LinearLayout
             android:id="@+id/ll_suggestion"

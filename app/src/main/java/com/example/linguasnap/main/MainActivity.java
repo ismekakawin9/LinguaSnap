@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     private ImageView ivSearchText;
+    private ImageView ivSwitchLanguage;
+    private ProgressBar pbTranslation;
     private ImageView ivCopyText;
     private ImageView iv_camera_option;
     private EditText EnterText;
@@ -152,6 +156,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView TextTo = findViewById(R.id.TextTo);
         SpinnerFrom = (Spinner) findViewById(R.id.SpinnerFrom);
         SpinnerTo = (Spinner) findViewById(R.id.SpinnerTo);
+        pbTranslation = findViewById(R.id.pb_load_translation);
+
         ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.LanguageFrom, android.R.layout.simple_spinner_item);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.LanguageTo, android.R.layout.simple_spinner_item);
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -171,11 +177,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        if(getSavedFromLanguage()!= null){
-            int idLanguage = Arrays.asList(fromLanguages).indexOf(getSavedFromLanguage());
-            SpinnerFrom.setSelection(idLanguage);
-        }
-
         SpinnerTo.setAdapter(adapter2);
         SpinnerTo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -190,33 +191,51 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+
+        if(getSavedFromLanguage()!= null){
+            int idLanguage = Arrays.asList(fromLanguages).indexOf(getSavedFromLanguage());
+            SpinnerFrom.setSelection(idLanguage);
+        }
+
+        if(getSavedToLanguage()!= null){
+            int idLanguage = Arrays.asList(toLanguages).indexOf(getSavedToLanguage());
+            SpinnerTo.setSelection(idLanguage);
+        }
+
         DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loadTranslation();
                 EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 if (!BaseLanguage.equals(SelectedLanguage)) {
                     if (checkInternetConnection()) {
-                        getTranslateService();
-                        translate();
-                        String from = TextFrom.getText().toString().trim();
-                        String to = TextTo.getText().toString().trim();
-                        String inputtext = EnterText.getText().toString().trim();
-                        String translatetext= Translated.getText().toString().trim();
-                        User user = new User(from,to,inputtext,translatetext);
-                        usersRef.push().setValue(user);
-                        //LanguageDetect();
-//                    sendGrammarBotRequest();
-                        clickCallApi();
-
+                        AsyncTask.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                getTranslateService();
+                                translate();
+                                String from = TextFrom.getText().toString().trim();
+                                String to = TextTo.getText().toString().trim();
+                                String inputtext = EnterText.getText().toString().trim();
+                                String translatetext= Translated.getText().toString().trim();
+                                User user = new User(from,to,inputtext,translatetext);
+                                usersRef.push().setValue(user);
+//                              LanguageDetect();
+//                              sendGrammarBotRequest();
+                                clickCallApi();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        stopLoading();
+                                    }
+                                });
+                            }
+                        });
                     } else {
                         Translated.setText("No internet connection");
                     }
-//                TextFrom.setText(LanguageDetect());
-//                int idLanguage = Arrays.asList(languages).indexOf(LanguageDetect());
-//                SpinnerFrom.setSelection(idLanguage);
-                }
-                else{
+                } else {
                     Translated.setText(originalText);
                 }
             }
@@ -247,7 +266,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 saveToClipboard();
             }
         });
+
+        ivSwitchLanguage = findViewById(R.id.iv_swap_language);
+        ivSwitchLanguage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchLanguages();
+            }
+        });
     }
+
+    public void loadTranslation(){
+        Translated.setVisibility(View.INVISIBLE);
+        WordDefinition.setVisibility(View.INVISIBLE);
+        pbTranslation.setVisibility(View.VISIBLE);
+    }
+
+    public void stopLoading(){
+        pbTranslation.setVisibility(View.INVISIBLE);
+        Translated.setVisibility(View.VISIBLE);
+        WordDefinition.setVisibility(View.VISIBLE);
+    }
+
+    public void switchLanguages(){
+        String fromLanguage= SpinnerFrom.getSelectedItem().toString();
+        String toLanguage = SpinnerTo.getSelectedItem().toString();
+        int changedFromLanguageId = Arrays.asList(fromLanguages).indexOf(toLanguage);
+        int changedToLanguageId = Arrays.asList(toLanguages).indexOf(fromLanguage);
+        SpinnerFrom.setSelection(changedFromLanguageId);
+        SpinnerTo.setSelection(changedToLanguageId);
+    }
+
     public void getTranslateService() {
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -371,14 +420,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return tf.detect(detectedLanguage);
     }
     public boolean checkInternetConnection() {
-
         //Check internet connection:
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         //Means that we are connected to a network (mobile or wi-fi)
         connected = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
-
         return connected;
     }
 
