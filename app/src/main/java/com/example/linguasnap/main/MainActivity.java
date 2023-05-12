@@ -222,7 +222,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 User user = new User(from,to,inputtext,translatetext);
                                 usersRef.push().setValue(user);
 //                              LanguageDetect();
-//                              sendGrammarBotRequest();
+                                if(SpinnerFrom.getSelectedItem().toString().equals("English")){
+                                    sendGrammarBotRequest();
+                                }
                                 clickCallApi();
                                 runOnUiThread(new Runnable() {
                                     @Override
