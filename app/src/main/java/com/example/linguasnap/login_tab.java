@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,7 +25,8 @@ import com.google.firebase.auth.FirebaseUser;
 public class login_tab extends Fragment {
 
     private static  EditText email,pass;
-    private static  Button btnlogin, forgot;
+    private static TextView forgot;
+    private static  Button btnlogin;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
 
@@ -35,7 +37,7 @@ public class login_tab extends Fragment {
         email = (EditText) root.findViewById(R.id.email);
         pass = (EditText) root.findViewById(R.id.pass);
         btnlogin = (Button) root.findViewById(R.id.btnlogin);
-        forgot = (Button) root.findViewById(R.id.forgot);
+        forgot = (TextView) root.findViewById(R.id.forgot);
         forgot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

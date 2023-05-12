@@ -57,20 +57,20 @@
         app:layout_constraintTop_toTopOf="parent"
         android:backgroundTint="#FF6600"/>
 
-    <Button
+    <TextView
         android:id="@+id/forgot"
-        android:layout_width="157dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:backgroundTint="@color/white"
         android:text="Forgot PassWord?"
         android:textColor="@color/black"
         android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.841"
+        app:layout_constraintHorizontal_bias="0.875"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.777" />
+        app:layout_constraintTop_toBottomOf="@+id/btnlogin"
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
