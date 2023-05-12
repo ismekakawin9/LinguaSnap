@@ -31,7 +31,7 @@
             android:id="@+id/toolbar2"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="10dp"
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
             app:titleTextColor="@android:color/white"
@@ -62,14 +62,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="120dp" />
+            app:layout_constraintGuide_begin="110dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="59dp" />
+            app:layout_constraintGuide_begin="60dp" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
@@ -334,7 +334,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.5" />
+            app:layout_constraintGuide_percent="0.57" />
 
         <LinearLayout
             android:id="@+id/ll_suggestion"

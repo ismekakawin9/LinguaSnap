@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView ivCopyText;
     private ImageView iv_camera_option;
     private EditText EnterText;
-    private TextView Translated;
+    private TextView Translated, email_user1;
     private String originalText;
     private String translatedText;
     private boolean connected;
@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Toolbar toolbar;
     ImageView iv_microphone;
     private static final int RESULT_SPECCH = 1;
+    String languagePref = "en";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,9 +132,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setCheckedItem(R.id.nav_tran);
         navigationView.setCheckedItem(R.id.nav_logout);
         navigationView.setCheckedItem(R.id.nav_his);
+        updateNavHeader();
 
         iv_microphone = findViewById(R.id.iv_microphone);
+        iv_microphone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, languagePref);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, languagePref);
+                intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, languagePref);
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Start Speaking");
+                try {
+                    startActivityForResult(intent, RESULT_SPECCH);
+                    EnterText.setText("");
+                } catch (ActivityNotFoundException e){
+                    Toast.makeText(getApplicationContext(),"Your device doesn't support Speech to Text", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
 
+            }
+        });
 
         iv_camera_option=findViewById(R.id.iv_camera_option);
         iv_camera_option.setOnClickListener(new View.OnClickListener() {
@@ -206,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         User user = new User(from,to,inputtext,translatetext);
                         usersRef.push().setValue(user);
                         //LanguageDetect();
-//                    sendGrammarBotRequest();
+                    sendGrammarBotRequest();
                         clickCallApi();
 
                     } else {
@@ -248,6 +267,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
     }
+
+    private void updateNavHeader() {
+        View headerView = navigationView.getHeaderView(0);
+        email_user1 = headerView.findViewById(R.id.email_user1);
+        email_user1.setText(mUser.getEmail());
+    }
+
     public void getTranslateService() {
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
