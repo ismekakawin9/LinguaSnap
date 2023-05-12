@@ -45,7 +45,7 @@ public class HistoryActivity extends AppCompatActivity {
         email_user = findViewById(R.id.email_user);
         email_user.setText(mUser.getEmail());
         String key = mUser.getUid();
-        DatabaseReference usersRef = database.getReference().child(key).child("History");
+        DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         ArrayList<User> userList;
         userList = new ArrayList<>();
         usersRef.addValueEventListener(new ValueEventListener() {

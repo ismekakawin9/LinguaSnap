@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         String key = mAuth.getUid();
-        DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         //menu
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -191,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
-
+        DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
