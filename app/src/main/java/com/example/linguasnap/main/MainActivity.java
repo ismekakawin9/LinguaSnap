@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView ivCopyText;
     private ImageView iv_camera_option;
     private EditText EnterText;
-    private TextView Translated;
+    private TextView Translated, TextFrom, TextTo;
     private String originalText;
     private String translatedText;
     private boolean connected;
@@ -152,12 +152,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tv_suggestedText = findViewById(R.id.tv_suggestedText);
         fromLanguages = getResources().getStringArray(R.array.LanguageFrom);
         toLanguages = getResources().getStringArray(R.array.LanguageTo);
-        TextView TextFrom = findViewById(R.id.TextFrom);
-        TextView TextTo = findViewById(R.id.TextTo);
+        TextFrom = findViewById(R.id.TextFrom);
+        TextTo = findViewById(R.id.TextTo);
         SpinnerFrom = (Spinner) findViewById(R.id.SpinnerFrom);
         SpinnerTo = (Spinner) findViewById(R.id.SpinnerTo);
         pbTranslation = findViewById(R.id.pb_load_translation);
-
         ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.LanguageFrom, android.R.layout.simple_spinner_item);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.LanguageTo, android.R.layout.simple_spinner_item);
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -442,16 +441,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (resultCode != Activity.RESULT_OK){
             return;
         }
-
-        if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
-            String value = data.getStringExtra("value");
-            String fromLanguage = data.getStringExtra("fromLanguage");
-            int idLanguage = Arrays.asList(fromLanguages).indexOf(fromLanguage);
-            Toast.makeText(MainActivity.this,fromLanguage,Toast.LENGTH_LONG).show();
-            SpinnerFrom.setSelection(idLanguage);
-            EnterText.setText(value);
-            originalText=value;
-        }
+            if (requestCode == utils.MYREQUEST_CODE) {
+                String strinputtext = data.getStringExtra("getinputfromhistory");
+                String strtranslatetext = data.getStringExtra("getoutputfromhistory");
+                String strgetto = data.getStringExtra("getto");
+                String strgetfrom = data.getStringExtra("getfrom");
+                TextFrom.setText(strgetfrom);
+                TextTo.setText(strgetto);
+                EnterText.setText(strinputtext);
+                Translated.setText(strtranslatetext);
+            }
+            if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
+                String value = data.getStringExtra("value");
+                String fromLanguage = data.getStringExtra("fromLanguage");
+                int idLanguage = Arrays.asList(fromLanguages).indexOf(fromLanguage);
+                Toast.makeText(MainActivity.this, fromLanguage, Toast.LENGTH_LONG).show();
+                SpinnerFrom.setSelection(idLanguage);
+                EnterText.setText(value);
+                originalText = value;
+            }
     }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -460,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_his:
                 Intent intenthis = new Intent(MainActivity.this,HistoryActivity.class);
-                startActivity(intenthis);
+                startActivityForResult(intenthis,utils.MYREQUEST_CODE);
                 break;
             case R.id.nav_changpass:
                 Intent intenthis1 = new Intent(MainActivity.this, changepass.class);

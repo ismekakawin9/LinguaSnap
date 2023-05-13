@@ -1,5 +1,6 @@
 package com.example.linguasnap;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -64,19 +65,27 @@ public class HistoryActivity extends AppCompatActivity {
             }
 
             private void ShowItemhistory(int position) {
-                User user = userList.get(position);
-                Intent intent = new Intent(HistoryActivity.this, MainActivity.class);
-                intent.putExtra("getinputfromhistory", user.getInputtext());
-                intent.putExtra("getoutputfromhistory", user.getTranslatetext());
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                 User user = userList.get(position);
+                 Intent intent = new Intent(HistoryActivity.this, MainActivity.class);
+                 intent.putExtra("getinputfromhistory", user.getInputtext());
+                 intent.putExtra("getoutputfromhistory", user.getTranslatetext());
+                 intent.putExtra("getfrom", user.getFrom());
+                 intent.putExtra("getto", user.getTo());
+                 setResult(Activity.RESULT_OK,intent);
+                 finish();
+//                User user = userList.get(position);
+//                Intent intent = new Intent(HistoryActivity.this, MainActivity.class);
+//                intent.putExtra("getinputfromhistory", user.getInputtext());
+//                intent.putExtra("getoutputfromhistory", user.getTranslatetext());
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                startActivity(intent);
             }
         });
     }
-    public void onBackPressed(){
-        finish();
-    }
+//    public void onBackPressed(){
+//        finish();
+//    }
 
 }
