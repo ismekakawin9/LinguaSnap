@@ -34,18 +34,32 @@ public class changepass extends AppCompatActivity {
                     Toast.makeText(getApplication(),"Please enter your username and password",Toast.LENGTH_LONG).show();
                     return;
                 }
-                user.updatePassword(newpass)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(changepass.this,"User password updated", Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            Toast.makeText(changepass.this,"Fail to update your password",Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+                if(TextUtils.isEmpty(newpass)){
+                    Toast.makeText(getApplication(), "Enter your password",Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if(newpass.length()<8){
+                    Toast.makeText(getApplication(), "Password too short, enter minimum 8 characters!",Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if(newpass.length()>30){
+                    Toast.makeText(getApplication(), "Password too long, enter maximum 30 characters!",Toast.LENGTH_LONG).show();
+                    return;
+                }
+                else
+                {
+                    user.updatePassword(newpass)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(changepass.this, "User password updated", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(changepass.this, "Fail to update your password", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                }
             }
         });
     }
