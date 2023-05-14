@@ -450,6 +450,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 TextTo.setText(strgetto);
                 EnterText.setText(strinputtext);
                 Translated.setText(strtranslatetext);
+                int strfrom = Arrays.asList(fromLanguages).indexOf(strgetfrom);
+                int strto = Arrays.asList(toLanguages).indexOf(strgetto);
+                SpinnerTo.setSelection(strto);
+                SpinnerFrom.setSelection(strfrom);
             }
             if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
                 String value = data.getStringExtra("value");
