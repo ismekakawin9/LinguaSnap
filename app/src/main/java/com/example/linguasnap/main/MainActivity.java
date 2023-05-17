@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView ivCopyText;
     private ImageView iv_camera_option;
     private EditText EnterText;
-    private TextView Translated, TextFrom, TextTo;
+    private TextView Translated, TextFrom, TextTo,email_user1;
     private String originalText;
     private String translatedText;
     private boolean connected;
@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setCheckedItem(R.id.nav_tran);
         navigationView.setCheckedItem(R.id.nav_logout);
         navigationView.setCheckedItem(R.id.nav_his);
+        updateNavHeader();
 
         iv_microphone = findViewById(R.id.iv_microphone);
 
@@ -275,6 +276,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 switchLanguages();
             }
         });
+    }
+
+    private void updateNavHeader() {
+        View headerView = navigationView.getHeaderView(0);
+        email_user1 = headerView.findViewById(R.id.email_user1);
+        email_user1.setText(mUser.getEmail());
     }
 
     public void loadTranslation(){
