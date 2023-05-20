@@ -169,17 +169,25 @@
         app:layout_constraintStart_toStartOf="@+id/gl_vertical_left"
         app:layout_constraintTop_toTopOf="@+id/guideline11">
 
-        <TextView
-            android:id="@+id/tv_translated"
+        <ScrollView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="15dp"
-            android:text="Your translation"
-            android:textColor="@color/white"
-            android:textSize="18dp"
+            android:layout_height="0dp"
+            android:layout_margin="20dp"
+
+            app:layout_constraintBottom_toTopOf="@+id/guideline14"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_translated"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Your translation"
+                android:textColor="@color/white"
+                android:textSize="18dp" />
+        </ScrollView>
+
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline12"

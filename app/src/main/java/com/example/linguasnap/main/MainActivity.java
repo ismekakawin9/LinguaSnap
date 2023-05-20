@@ -9,7 +9,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,7 +36,7 @@ import android.widget.Toast;
 
 import com.example.linguasnap.API.ApiService;
 import com.example.linguasnap.HistoryActivity;
-import com.example.linguasnap.User;
+import com.example.linguasnap.model.User;
 import com.example.linguasnap.activity_loginds;
 import com.example.linguasnap.changepass;
 import com.example.linguasnap.imageToText.ImageToTextActivity;
@@ -66,7 +64,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -206,13 +203,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadTranslation();
                 EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 if (!BaseLanguage.equals(SelectedLanguage)) {
                     if (checkInternetConnection()) {
-                        AsyncTask.execute(new Runnable() {
-                            @Override
-                            public void run() {
                                 getTranslateService();
                                 translate();
                                 String from = TextFrom.getText().toString().trim();
@@ -226,14 +219,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     sendGrammarBotRequest();
                                 }
                                 clickCallApi();
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        stopLoading();
-                                    }
-                                });
-                            }
-                        });
+                                hideTranslation();
                     } else {
                         Translated.setText("No internet connection");
                     }
@@ -284,16 +270,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         email_user1.setText(mUser.getEmail());
     }
 
-    public void loadTranslation(){
-        Translated.setVisibility(View.INVISIBLE);
-        WordDefinition.setVisibility(View.INVISIBLE);
-        pbTranslation.setVisibility(View.VISIBLE);
-    }
-
-    public void stopLoading(){
-        pbTranslation.setVisibility(View.INVISIBLE);
+    public void showTranslation(){
         Translated.setVisibility(View.VISIBLE);
         WordDefinition.setVisibility(View.VISIBLE);
+    }
+
+    public void hideTranslation(){
+        Translated.setVisibility(View.INVISIBLE);
+        WordDefinition.setVisibility(View.INVISIBLE);
     }
 
     public void switchLanguages(){
@@ -325,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
     public void translate() {
+        showTranslation();
         //Get input text to be translated:
         originalText = EnterText.getText().toString();
         Detection detect = translate.detect(originalText);

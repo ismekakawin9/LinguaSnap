@@ -1,4 +1,4 @@
-package com.example.linguasnap;
+package com.example.linguasnap.model;
 
 public class User {
     public String from;

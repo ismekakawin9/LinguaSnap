@@ -23,7 +23,6 @@ public interface ApiService {
             .build()
             .create(ApiService.class);
 
-
     @GET("api/v2/entries/en/{word}")
     Call<List<Word>> engDictionary(@Path("word") String word);
 }
