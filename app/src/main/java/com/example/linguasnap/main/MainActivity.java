@@ -19,6 +19,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -66,6 +68,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -79,6 +84,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     private ImageView ivSearchText;
+    private ImageView ivSpeakerFrom;
+    private ImageView ivSpeakerTo;
+    private TextToSpeech textToSpeech;
     private ImageView ivSwitchLanguage;
     private ProgressBar pbTranslation;
     private ImageView ivCopyText;
@@ -206,20 +214,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 if (!BaseLanguage.equals(SelectedLanguage)) {
                     if (checkInternetConnection()) {
-                                getTranslateService();
-                                translate();
-                                String from = TextFrom.getText().toString().trim();
-                                String to = TextTo.getText().toString().trim();
-                                String inputtext = EnterText.getText().toString().trim();
-                                String translatetext= Translated.getText().toString().trim();
-                                User user = new User(from,to,inputtext,translatetext);
-                                usersRef.push().setValue(user);
+                        getTranslateService();
+                        translate();
+                        String from = TextFrom.getText().toString().trim();
+                        String to = TextTo.getText().toString().trim();
+                        String inputtext = EnterText.getText().toString().trim();
+                        String translatetext= Translated.getText().toString().trim();
+                        User user = new User(from,to,inputtext,translatetext);
+                        usersRef.push().setValue(user);
 //                              LanguageDetect();
-                                if(SpinnerFrom.getSelectedItem().toString().equals("English")){
-                                    sendGrammarBotRequest();
-                                }
-                                clickCallApi();
-                                hideTranslation();
+                        if(SpinnerFrom.getSelectedItem().toString().equals("English")){
+                            sendGrammarBotRequest();
+                        }
+                        clickCallApi();
                     } else {
                         Translated.setText("No internet connection");
                     }
@@ -262,6 +269,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 switchLanguages();
             }
         });
+
+        textToSpeech= new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS){
+                    Set<Locale> supportedLanguages = textToSpeech.getAvailableLanguages();
+                    for (Locale locale : supportedLanguages) {
+                        Log.d("Supported Language", locale.getDisplayLanguage());
+                    }
+                }
+                else {
+                    Log.d("MainActivity","TTS not initialized");
+                }
+            }
+        });
+
+        ivSpeakerFrom = findViewById(R.id.iv_speaker_from);
+        ivSpeakerFrom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                speak(SpinnerFrom.getSelectedItem().toString(),EnterText.getText().toString());
+            }
+        });
+
+        ivSpeakerTo = findViewById(R.id.iv_speaker_to);
+        ivSpeakerTo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                speak(SpinnerTo.getSelectedItem().toString(),Translated.getText().toString());
+            }
+        });
+    }
+
+    public void speak(String language,String text){
+        String languageCode = getLanguageCode(language);
+
+        if (languageCode != null) {
+            textToSpeech.setLanguage(new Locale(languageCode));
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+        }
+        else {
+            Log.e("TTS", "Language code not found");
+        }
+    }
+    public String getLanguageCode(String languageName) {
+        Locale[] availableLocales = Locale.getAvailableLocales();
+        for (Locale locale : availableLocales) {
+            if (languageName.equalsIgnoreCase(locale.getDisplayName())) {
+                return locale.getLanguage();
+            }
+        }
+        if(Objects.equals(languageName, "Chinese (Simplified)")){
+            String languageCode = "zh-CN";
+            return languageCode;
+        }
+        if(Objects.equals(languageName, "Chinese (Traditional)"))
+        {
+            String languageCode = "zh-TW";
+            return languageCode;
+        }
+        return null; // Language code not found
     }
 
     private void updateNavHeader() {
@@ -430,29 +498,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (resultCode != Activity.RESULT_OK){
             return;
         }
-            if (requestCode == utils.MYREQUEST_CODE) {
-                String strinputtext = data.getStringExtra("getinputfromhistory");
-                String strtranslatetext = data.getStringExtra("getoutputfromhistory");
-                String strgetto = data.getStringExtra("getto");
-                String strgetfrom = data.getStringExtra("getfrom");
-                TextFrom.setText(strgetfrom);
-                TextTo.setText(strgetto);
-                EnterText.setText(strinputtext);
-                Translated.setText(strtranslatetext);
-                int strfrom = Arrays.asList(fromLanguages).indexOf(strgetfrom);
-                int strto = Arrays.asList(toLanguages).indexOf(strgetto);
-                SpinnerTo.setSelection(strto);
-                SpinnerFrom.setSelection(strfrom);
-            }
-            if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
-                String value = data.getStringExtra("value");
-                String fromLanguage = data.getStringExtra("fromLanguage");
-                int idLanguage = Arrays.asList(fromLanguages).indexOf(fromLanguage);
-                Toast.makeText(MainActivity.this, fromLanguage, Toast.LENGTH_LONG).show();
-                SpinnerFrom.setSelection(idLanguage);
-                EnterText.setText(value);
-                originalText = value;
-            }
+        if (requestCode == utils.MYREQUEST_CODE) {
+            String strinputtext = data.getStringExtra("getinputfromhistory");
+            String strtranslatetext = data.getStringExtra("getoutputfromhistory");
+            String strgetto = data.getStringExtra("getto");
+            String strgetfrom = data.getStringExtra("getfrom");
+            TextFrom.setText(strgetfrom);
+            TextTo.setText(strgetto);
+            EnterText.setText(strinputtext);
+            Translated.setText(strtranslatetext);
+            int strfrom = Arrays.asList(fromLanguages).indexOf(strgetfrom);
+            int strto = Arrays.asList(toLanguages).indexOf(strgetto);
+            SpinnerTo.setSelection(strto);
+            SpinnerFrom.setSelection(strfrom);
+        }
+        if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
+            String value = data.getStringExtra("value");
+            String fromLanguage = data.getStringExtra("fromLanguage");
+            int idLanguage = Arrays.asList(fromLanguages).indexOf(fromLanguage);
+            Toast.makeText(MainActivity.this, fromLanguage, Toast.LENGTH_LONG).show();
+            SpinnerFrom.setSelection(idLanguage);
+            EnterText.setText(value);
+            originalText = value;
+        }
     }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -513,6 +581,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         editor.putString("fromLanguage", SpinnerFrom.getSelectedItem().toString());
         editor.putString("toLanguage", SpinnerTo.getSelectedItem().toString());
         editor.apply();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Release the Text-to-Speech resources
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
     }
 
     @Override
