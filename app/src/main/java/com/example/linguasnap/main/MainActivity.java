@@ -216,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (checkInternetConnection()) {
                         getTranslateService();
                         translate();
+                        WordDefinition.setText("");
                         String from = TextFrom.getText().toString().trim();
                         String to = TextTo.getText().toString().trim();
                         String inputtext = EnterText.getText().toString().trim();
@@ -226,7 +227,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if(SpinnerFrom.getSelectedItem().toString().equals("English")){
                             sendGrammarBotRequest();
                         }
-                        clickCallApi();
+                        if(wordCount(inputtext)<3) {
+                            clickCallApi();
+                        }
                     } else {
                         Translated.setText("No internet connection");
                     }
@@ -596,5 +599,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
+    }
+    public int wordCount(@NonNull String Word){
+        return Word.split("\\s").length;
     }
 }
