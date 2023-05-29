@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.linguasnap.API.ApiService;
+import com.example.linguasnap.BookmarkActivity;
 import com.example.linguasnap.HistoryActivity;
 import com.example.linguasnap.model.User;
 import com.example.linguasnap.activity_loginds;
@@ -207,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SpinnerTo.setSelection(idLanguage);
         }
 
-        DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,13 +216,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (checkInternetConnection()) {
                         getTranslateService();
                         translate();
-                        WordDefinition.setText("");
+                        DatabaseReference usersRef = database.getReference("User").child(key).child("History").push();
+                        String keyID = usersRef.getKey();
                         String from = TextFrom.getText().toString().trim();
                         String to = TextTo.getText().toString().trim();
                         String inputtext = EnterText.getText().toString().trim();
                         String translatetext= Translated.getText().toString().trim();
-                        User user = new User(from,to,inputtext,translatetext);
-                        usersRef.push().setValue(user);
+                        int like = 0;
+                        User user = new User(keyID,from,to,inputtext,translatetext,like);
+                        usersRef.setValue(user);
 //                              LanguageDetect();
                         if(SpinnerFrom.getSelectedItem().toString().equals("English")){
                             sendGrammarBotRequest();
@@ -515,6 +517,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SpinnerTo.setSelection(strto);
             SpinnerFrom.setSelection(strfrom);
         }
+        if (requestCode == utils.BOOKMARK_CODE){
+            String strinputtext = data.getStringExtra("getinputfrombookmark");
+            String strtranslatetext = data.getStringExtra("getoutputfrombookmark");
+            String strgetto = data.getStringExtra("getto");
+            String strgetfrom = data.getStringExtra("getfrom");
+            TextFrom.setText(strgetfrom);
+            TextTo.setText(strgetto);
+            EnterText.setText(strinputtext);
+            Translated.setText(strtranslatetext);
+            int strfrom = Arrays.asList(fromLanguages).indexOf(strgetfrom);
+            int strto = Arrays.asList(toLanguages).indexOf(strgetto);
+            SpinnerTo.setSelection(strto);
+            SpinnerFrom.setSelection(strfrom);
+        }
         if (requestCode == utils.IMAGE_ACTIVITY_CODE) {
             String value = data.getStringExtra("value");
             String fromLanguage = data.getStringExtra("fromLanguage");
@@ -537,6 +553,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_changpass:
                 Intent intenthis1 = new Intent(MainActivity.this, changepass.class);
                 startActivity(intenthis1);
+                break;
+            case R.id.nav_bookmark:
+                Intent intentbookmark = new Intent(MainActivity.this, BookmarkActivity.class);
+                startActivityForResult(intentbookmark,utils.BOOKMARK_CODE);
                 break;
             case R.id.nav_logout:
                 FirebaseAuth.getInstance().signOut();

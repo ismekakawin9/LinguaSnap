@@ -1,10 +1,12 @@
 package com.example.linguasnap;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,8 +29,12 @@ public class HistoryActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     TextView email_user;
+    String key;
     ListView listhistory;
     UserAdapter userAdapter;
+    Button btn_clear;
+
+    @SuppressLint("SuspiciousIndentation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +49,15 @@ public class HistoryActivity extends AppCompatActivity {
         DatabaseReference usersRef = database.getReference("User").child(key).child("History");
         ArrayList<User> userList;
         userList = new ArrayList<>();
-        usersRef.addValueEventListener(new ValueEventListener() {
+        btn_clear= findViewById(R.id.btn_clearhis);
+        btn_clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                usersRef.removeValue();
+                userAdapter.notifyDataSetChanged();
+            }
+        });
+            usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
@@ -51,42 +65,31 @@ public class HistoryActivity extends AppCompatActivity {
                     userList.add(user);
                     userAdapter = new UserAdapter(userList);
                     listhistory.setAdapter(userAdapter);
+                    userAdapter.notifyDataSetChanged();
                 }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
         listhistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long i) {
                 ShowItemhistory(position);
-
+                userAdapter.notifyDataSetChanged();
             }
-
-            private void ShowItemhistory(int position) {
+            public void ShowItemhistory(int position) {
                  User user = userList.get(position);
                  Intent intent = new Intent(HistoryActivity.this, MainActivity.class);
+                 intent.putExtra("likeorunlike",user.getLike());
                  intent.putExtra("getinputfromhistory", user.getInputtext());
                  intent.putExtra("getoutputfromhistory", user.getTranslatetext());
                  intent.putExtra("getfrom", user.getFrom());
                  intent.putExtra("getto", user.getTo());
                  setResult(Activity.RESULT_OK,intent);
                  finish();
-//                User user = userList.get(position);
-//                Intent intent = new Intent(HistoryActivity.this, MainActivity.class);
-//                intent.putExtra("getinputfromhistory", user.getInputtext());
-//                intent.putExtra("getoutputfromhistory", user.getTranslatetext());
-//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                startActivity(intent);
             }
         });
     }
-//    public void onBackPressed(){
-//        finish();
-//    }
 
 }
