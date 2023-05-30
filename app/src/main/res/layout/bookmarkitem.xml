@@ -7,6 +7,14 @@
     android:descendantFocusability="blocksDescendants"
     android:orientation="vertical">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@+id/btn_remove"
+        app:layout_constraintGuide_begin="381dp" />
+
     <TextView
         android:id="@+id/txtto"
         android:layout_width="wrap_content"
@@ -30,11 +38,10 @@
 
     <ImageView
         android:id="@+id/btnlike"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/txtto"
+        app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:srcCompat="@drawable/like"
         tools:layout_editor_absoluteY="2dp" />
 

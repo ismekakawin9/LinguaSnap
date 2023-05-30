@@ -17,8 +17,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.MenuItem;
@@ -67,6 +67,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String SelectedLanguage;
     String BaseLanguage;
     String detectedLanguage;
+    String stt;
     Translate translate;
     private TextView WordDefinition;
     DrawerLayout drawerLayout;
@@ -144,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateNavHeader();
 
         iv_microphone = findViewById(R.id.iv_microphone);
+
+
+
 
 
         iv_camera_option=findViewById(R.id.iv_camera_option);
@@ -290,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+
         ivSpeakerFrom = findViewById(R.id.iv_speaker_from);
         ivSpeakerFrom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -305,7 +311,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 speak(SpinnerTo.getSelectedItem().toString(),Translated.getText().toString());
             }
         });
+        iv_microphone.setOnClickListener(new View.OnClickListener() {
+            @Override
+
+            public void onClick(View view) {
+                Speech(SpinnerFrom.getSelectedItem().toString(),EnterText.getText().toString() );
+
+            }
+        });
     }
+    private void Speech(String language, String text) {
+        String languageCode = getLanguageCode(language);
+        if (languageCode != null) {
+            stt(String.valueOf(new Locale(languageCode)));
+        }
+        else {
+            Log.e("Speech", "Language code not found");
+        }
+    }
+    public void stt(String language){
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, language);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say Something");
+        startActivityForResult(intent, RESULT_SPECCH);
+    }
+
 
     public void speak(String language,String text){
         String languageCode = getLanguageCode(language);
@@ -313,11 +345,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (languageCode != null) {
             textToSpeech.setLanguage(new Locale(languageCode));
             textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+
         }
         else {
             Log.e("TTS", "Language code not found");
         }
     }
+
     public String getLanguageCode(String languageName) {
         Locale[] availableLocales = Locale.getAvailableLocales();
         for (Locale locale : availableLocales) {
@@ -334,6 +368,109 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String languageCode = "zh-TW";
             return languageCode;
         }
+        if(Objects.equals(languageName, "Afrikaans"))
+        {
+            String languageCode = "af-";
+            return languageCode;
+        }
+        if(Objects.equals(languageName, "Albanian"))
+        {
+            String languageCode = "sq-";
+            return languageCode;
+        }if(Objects.equals(languageName, "Catalan"))
+        {
+            String languageCode = "ca";
+            return languageCode;
+        }if(Objects.equals(languageName, "Croatia"))
+        {
+            String languageCode = "hr-";
+            return languageCode; // K
+        }
+        if(Objects.equals(languageName, "Czech"))
+        {
+            String languageCode = "cs-CZ";
+            return languageCode;
+        }
+        if(Objects.equals(languageName, "Danish"))
+        {
+            String languageCode = "da-";
+            return languageCode;
+        }
+        if(Objects.equals(languageName, "Dutch"))
+        {
+            String languageCode = "nl-";
+            return languageCode;
+        }
+        if(Objects.equals(languageName, "English"))
+        {
+            String languageCode = "en-US";
+            return languageCode;
+        }if(Objects.equals(languageName, "Estonian"))
+        {
+            String languageCode = "et-";
+            return languageCode;
+        }if(Objects.equals(languageName, "Filipino"))
+        {
+            String languageCode = "fil-";
+            return languageCode;
+        }if(Objects.equals(languageName, "Finnish"))
+        {
+            String languageCode = "fi-";
+            return languageCode;
+        }if(Objects.equals(languageName, "French"))
+        {
+            String languageCode = "fr-";
+            return languageCode;
+        }if(Objects.equals(languageName, "German"))
+        {
+            String languageCode = "de-DE";
+            return languageCode;
+        }if(Objects.equals(languageName, "Hindi"))
+        {
+            String languageCode = "hi-IN";
+            return languageCode;
+        }if(Objects.equals(languageName, "Hungarian"))
+        {
+            String languageCode = "hu-HU";
+            return languageCode;
+        }if(Objects.equals(languageName, "Icelandic"))
+        {
+            String languageCode = "is-";
+            return languageCode;
+        }if(Objects.equals(languageName, "Italian"))
+        {
+            String languageCode = "it-";
+            return languageCode;
+        }if(Objects.equals(languageName, "Japanese"))
+        {
+            String languageCode = "ja-JP";
+            return languageCode;
+        }if(Objects.equals(languageName, "Lithuanian"))
+        {
+            String languageCode = "lt-LT";
+            return languageCode;
+        }if(Objects.equals(languageName, "Malay"))
+        {
+            String languageCode = "ms-";
+            return languageCode;
+        }if(Objects.equals(languageName, "Marathi"))
+        {
+            String languageCode = "mr-";
+            return languageCode;
+        }if(Objects.equals(languageName, "Nepali"))
+        {
+            String languageCode = "ne-";
+            return languageCode;
+        }
+        if(Objects.equals(languageName, "Vietnamese"))
+        {
+            String languageCode = "vi-VN";
+            return languageCode;
+        }
+
+
+
+
         return null; // Language code not found
     }
 
@@ -539,6 +676,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SpinnerFrom.setSelection(idLanguage);
             EnterText.setText(value);
             originalText = value;
+        }
+        if (requestCode ==  RESULT_SPECCH){
+            if(resultCode == RESULT_OK && data != null) {
+                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                EnterText.setText(result.get(0));
+            }
         }
     }
     @Override
