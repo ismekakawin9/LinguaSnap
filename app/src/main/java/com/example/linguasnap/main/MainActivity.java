@@ -223,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 if (!BaseLanguage.equals(SelectedLanguage)) {
                     if (checkInternetConnection()) {
+                        WordDefinition.setText("");
                         EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
                         translate();
                         DatabaseReference usersRef = database.getReference("User").child(key).child("History").push();
