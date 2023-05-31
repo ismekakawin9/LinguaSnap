@@ -54,7 +54,8 @@ public class HistoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 usersRef.removeValue();
-                userAdapter.notifyDataSetChanged();
+                userAdapter= null;
+                listhistory.setAdapter(userAdapter);
             }
         });
             usersRef.addListenerForSingleValueEvent(new ValueEventListener() {

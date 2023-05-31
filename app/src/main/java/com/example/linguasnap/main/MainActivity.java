@@ -18,8 +18,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +58,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.translate.Detection;
 import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
 import com.google.firebase.auth.FirebaseAuth;
@@ -213,13 +217,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             SpinnerTo.setSelection(idLanguage);
         }
 
+        getTranslateService();
         btnTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
                 if (!BaseLanguage.equals(SelectedLanguage)) {
                     if (checkInternetConnection()) {
-                        getTranslateService();
+                        EnterText.onEditorAction(EditorInfo.IME_ACTION_DONE);
                         translate();
                         DatabaseReference usersRef = database.getReference("User").child(key).child("History").push();
                         String keyID = usersRef.getKey();
@@ -231,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         User user = new User(keyID,from,to,inputtext,translatetext,like);
                         usersRef.setValue(user);
 //                              LanguageDetect();
-                        if(SpinnerFrom.getSelectedItem().toString().equals("English")){
+                        if(SpinnerFrom.getSelectedItem().toString().equals("English") && EnterText.getText().length() < 150 ){
                             sendGrammarBotRequest();
                         }
                         if(wordCount(inputtext)<3) {
@@ -317,6 +321,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 Speech(SpinnerFrom.getSelectedItem().toString(),EnterText.getText().toString() );
 
+            }
+        });
+
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                translate();
+            }
+        };
+        EnterText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                handler.removeCallbacks(runnable);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // This method is called after the text has been changed
+                // Set the delay here (e.g., 3 seconds)
+                handler.postDelayed(runnable, 500);
             }
         });
     }
@@ -467,10 +497,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String languageCode = "vi-VN";
             return languageCode;
         }
-
-
-
-
         return null; // Language code not found
     }
 
@@ -522,18 +548,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showTranslation();
         //Get input text to be translated:
         originalText = EnterText.getText().toString();
-        Detection detect = translate.detect(originalText);
-        String detectedText = detect.getLanguage();
-        if(BaseLanguage.equals("Auto Detect")) {
-            Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(detectedText));
-            translatedText = translation.getTranslatedText();
+        if(!originalText.equals("")){
+            try{
+                if(BaseLanguage.equals("Auto Detect")) {
+                    Detection detect = translate.detect(originalText);
+                    String detectedText = detect.getLanguage();
+                    if(!detect.getLanguage().isEmpty()){
+                        Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(detectedText));
+                        translatedText = translation.getTranslatedText();
+                    }
+                }
+                else{
+                    Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(tf.selectCountry(BaseLanguage)));
+                    translatedText = translation.getTranslatedText();
+                }
+                Translated.setText(translatedText);
+            }
+            catch (TranslateException tE){
+                Toast.makeText(this, "Can't detect language", Toast.LENGTH_SHORT).show();
+            }
+            //Translated text and original text are set to TextViews:
+
         }
-        else {
-            Translation translation = translate.translate(originalText, Translate.TranslateOption.targetLanguage(to.selectCountry(SelectedLanguage)), Translate.TranslateOption.sourceLanguage(tf.selectCountry(BaseLanguage)));
-            translatedText = translation.getTranslatedText();
-        }
-        //Translated text and original text are set to TextViews:
-        Translated.setText(translatedText);
     }
 
     public void sendGrammarBotRequest(){
